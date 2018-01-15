@@ -1,0 +1,113 @@
+<!--
+(C) Copyright 2017 Nuxeo (http://nuxeo.com/) and others.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Contributors:
+   Andre Justo <ajusto@nuxeo.com>
+-->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+<style is="custom-style">
+
+  :root {
+    /* -- Nuxeo Branding colors -- */
+    --rainier-portal-app-font: 'Open Sans', Arial, sans-serif;
+    --rainier-portal-text-default: #32353f;
+    --rainier-portal-primary-color: #00b0ff;
+    --rainier-portal-secondary-color: #725139;
+    --rainier-portal-box: #fff;
+    --rainier-portal-hover-color: var(--rainier-portal-primary-color);
+    --rainier-portal-grid-selected: var(--rainier-portal-primary-color);
+
+    --rainier-portal-button: transparent;
+    --rainier-portal-button-primary-color: var(--rainier-portal-primary-color);
+    --rainier-portal-button-primary-focus: var(--rainier-portal-secondary-color);
+    --rainier-portal-button-primary-text: #ffffff;
+    --rainier-portal-link-color:var(--rainier-portal-text-default);
+    --rainier-portal-link-hover-color: var(--rainier-portal-primary-color);
+
+    --rainier-portal-button-hover: {
+      color: var(--rainier-portal-hover-color);
+    };
+
+    --rainier-portal-button-primary: {
+      color: var(--rainier-portal-button-primary-text);
+      font-weight: 700;
+      background-color: var(--rainier-portal-button-primary-color);
+    };
+
+    --rainier-portal-button-primary-hover: {
+      color: var(--rainier-portal-button-primary-text);
+      background-color: var(--rainier-portal-button-primary-focus);
+    };
+
+    --paper-icon-button-hover: {
+      color: var(--rainier-portal-hover-color);
+    };
+
+    --paper-button: {
+      color: var(--rainier-portal-link-color);
+      background-color: var(--rainier-portal-button);
+      border-radius: .1em;
+      padding: .8em 2em;
+      margin: 0;
+    };
+
+    --paper-input-container-input-color: #6c6f7c;
+    --paper-input-container-focus-color: var(--rainier-portal-primary-color);
+  }
+
+  html {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  html, body {
+    background: #f5f5f6;
+    color: var(--rainier-portal-text-default);
+    font-family: var(--rainier-portal-app-font);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  body ::content paper-button:hover {
+    @apply(--rainier-portal-button-hover);
+  }
+
+  body ::content paper-button.primary {
+    @apply(--rainier-portal-button-primary);
+  }
+
+  body ::content paper-button.primary:hover {
+    @apply(--rainier-portal-button-primary-hover);
+  }
+
+  /* scrollbars */
+   body ::-webkit-scrollbar-track {
+     width: 3px;
+     height: 3px;
+   }
+   body ::-webkit-scrollbar {
+     background-color: rgba(0, 0, 0, 0.03);
+     width: 3px;
+     height: 3px;
+   }
+   body ::-webkit-scrollbar-thumb {
+     background-color: rgba(0, 0, 0, 0.15);
+     border-radius: 2px;
+   }
+
+</style>

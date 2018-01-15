@@ -1,0 +1,89 @@
+<!--
+@license
+(C) Copyright 2017 Nuxeo SA (http://nuxeo.com/) and contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<script>
+  var Nuxeo = Nuxeo || {};
+  (function() {
+
+    /**
+     * @polymerBehavior Nuxeo.DamThumbnailBehavior
+     */
+    Nuxeo.DamThumbnailBehavior = {
+
+      properties: {
+
+        document: {
+          type: Object,
+          observer: "documentChanged"
+        }
+      },
+
+      getImageInfo: function() {
+        var image;
+        var thumbnailView;
+        switch (this.document.type) {
+          case 'Picture':
+            image = this._handleAssets();
+            break;
+          case 'Video':
+            image = this._handleAssets();
+            break;
+          default:
+            image = this._extractFromThumbnailEnricher();
+        }
+        return image;
+      },
+
+
+      _handleAssets: function() {
+        if (this._hasPictureViews()) {
+          return this._extractFromPictureView();
+        } else {
+          return this._extractFromThumbnailEnricher();
+        }
+      },
+
+      _extractFromPictureView: function() {
+        var view = this.document.properties['picture:views'][0];
+        return {
+          url: view.content.data,
+          width: view.width,
+          height: view.height,
+          ratio: view.width / view.height
+        };
+      },
+
+      _extractFromThumbnailEnricher: function() {
+        return  {
+          url: this.document.contextParameters.thumbnail.url,
+          width: 40,
+          height: 40,
+          ratio: 1
+        };
+      },
+
+      _hasPictureViews: function() {
+        return this.document.properties['picture:views'] !== undefined &&
+        this.document.properties['picture:views'].length > 0;
+      },
+      
+      documentChanged: function() {
+        this.fire('nuxeo-thumbnail-update');
+      }
+
+    };
+  })();
+</script>

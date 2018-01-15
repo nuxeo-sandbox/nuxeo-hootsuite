@@ -1,0 +1,198 @@
+<link rel="import" href="nuxeo-dam-thumbnail-behavior.html">
+<link rel="import" href="../../bower_components/nuxeo-ui-elements/nuxeo-format-behavior.html">
+
+<dom-module id="nuxeo-dam-thumbnail">
+  <template>
+    <style>
+      .container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #fff;
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.04);;
+        border: 2px solid transparent;
+      }
+
+      .container:hover,
+      .container:focus {
+        border: 2px solid var(--rainier-portal-hover-color);
+        color: var(--rainier-portal-hover-color);
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.04);
+      }
+
+      .container img {
+        width: 100%;
+        height: 100%;
+      }
+
+      .inneractions {
+        width: 100%;
+        background-color: #fff;
+        justify-content: center;
+      }
+
+      .innnertitle {
+        background: -moz-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%); /* FF3.6-15 */
+        background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%); /* Chrome10-25,Safari5.1-6 */
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+        color: #fff;
+        padding: 8px;
+      }
+
+      .overlay {
+        display: none;
+        position: absolute;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(20, 20, 20, .5);
+      }
+
+      .container .actions {
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        opacity: 0;
+        -webkit-transition: opacity .25s ease-in-out;
+        -moz-transition: opacity .25s ease-in-out;
+        -ms-transition: opacity .25s ease-in-out;
+        -o-transition: opacity .25s ease-in-out;
+        transition: opacity .25s ease-in-out;
+      }
+
+      .container .title {
+        background-color: #fff;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+
+      .container .title span {
+        display: inherit;
+        overflow: hidden;
+        white-space: nowrap;
+        margin: 16px;
+        text-overflow: ellipsis;
+      }
+
+      .container .select {
+        display: none;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        margin: 0.5em;
+        border: 2px solid #ddd;
+        background-color: #fff;
+        z-index: 2;
+        border-radius: 3em;
+      }
+
+      .container:hover .actions,
+      .container:hover .select {
+        display: block;
+        opacity: 1;
+        -webkit-transition: opacity .25s ease-in-out;
+        -moz-transition: opacity .25s ease-in-out;
+        -ms-transition: opacity .25s ease-in-out;
+        -o-transition: opacity .25s ease-in-out;
+        transition: opacity .25s ease-in-out;
+      }
+
+      :host[selected] .container .select,
+      :host[selected] .container:hover .select:hover {
+        border: 2px solid var(--rainier-portal-grid-selected);
+        background-color: var(--rainier-portal-grid-selected);
+        cursor: pointer;
+        display: block;
+      }
+
+      :host[selected] .select paper-icon-button {
+        color: #fff;
+      }
+
+      :host[selected] .overlay {
+        display: block;
+      }
+
+    </style>
+    <div class="container">
+      <a href$="#">
+        <img src="[[document.contextParameters.thumbnail.url]]">
+      </a>
+      <div class="overlay"></div>
+      <template is="dom-if" if="[[_displayTitle(document)]]">
+        <a href$="[[urlFor('browse', document.path)]]">
+          <div class="title"><span>[[document.title]]</span></div>
+        </a>
+      </template>
+      <template is="dom-if" if="[[actionsEnabled]]">
+        <div class="actions">
+          <div class="innnertitle layout horizontal center">
+            <span class="flex">[[document.title]]</span>
+            <span>[[_computeFileSize(document)]]</span>
+          </div>
+          <div class="layout horizontal wrap inneractions">
+            <content id="actions"></content>
+          </div>
+        </div>
+      </template>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'nuxeo-dam-thumbnail',
+      behaviors: [Nuxeo.DamThumbnailBehavior, Nuxeo.FormatBehavior],
+      properties: {
+        document: {
+          type: Object
+        },
+
+        selectionEnabled: {
+          type: Boolean,
+          value: false
+        },
+
+        selected: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+
+        actionsEnabled: {
+          type: Boolean,
+          value: false
+        },
+
+        alwayDisplayTitle: {
+          type: Boolean,
+          value: false
+        }
+
+      },
+
+      _onCheckBoxTap: function() {
+        this.selected = !this.selected;
+        this.fire('selected');
+      },
+
+      _displayTitle: function(document) {
+        if (document === undefined) return false;
+        if (this.alwayDisplayTitle) return true;
+        var facets = document.facets;
+
+        return facets.indexOf('Folderish') >= 0 || facets.indexOf('Collection') >= 0;
+      },
+
+      _computeFileSize: function(document) {
+        return this.formatSize(document.properties['common:size']);
+      },
+
+    });
+  </script>
+</dom-module>

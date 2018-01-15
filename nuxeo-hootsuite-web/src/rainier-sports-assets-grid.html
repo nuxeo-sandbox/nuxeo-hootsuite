@@ -1,0 +1,195 @@
+<!--
+(C) Copyright 2017 Nuxeo (http://nuxeo.com/) and others.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Contributors:
+   Andre Justo <ajusto@nuxeo.com>
+-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../bower_components/nuxeo-elements/nuxeo-page-provider.html">
+<link rel="import" href="../bower_components/nuxeo-ui-elements/nuxeo-icons.html">
+
+<link rel="import" href="justified-grid/nuxeo-dam-justified-gallery.html">
+<link rel="import" href="justified-grid/nuxeo-dam-thumbnail.html">
+<link rel="import" href="justified-grid/nuxeo-dam-pageprovider-behavior.html">
+
+<link rel="import" href="actions/nuxeo-hootsuite-attach-action.html">
+
+<dom-module id="rainier-sports-assets-grid">
+  <template>
+    <style>
+      #gallery-container {
+        box-sizing: border-box;
+        height: 100vh;
+        width: 100%;
+        overflow-y: scroll;
+        padding: 1em;
+      }
+
+      nuxeo-dam-justified-gallery {
+        display: block;
+        height: 100%;
+        width: 100%;
+      }
+
+      .emptyResult {
+        opacity: .5;
+        display: block;
+        font-weight: 300;
+        padding: 1.5em .7em;
+        text-align: center;
+        font-size: 1.1rem;
+      }
+    </style>
+
+    <rainier-sports-selection-toolbar selected-items="[[selectedItems]]">
+      <content></content>
+    </rainier-sports-selection-toolbar>
+
+    <nuxeo-page-provider id="nxProvider"
+                         provider="[[provider]]"
+                         aggregations="{{aggregations}}"
+                         params="[[params]]"
+                         page-size="[[pageSize]]"
+                         page="{{page}}"
+                         enrichers="thumbnail">
+    </nuxeo-page-provider>
+
+    <div id="gallery-container">
+      <template is="dom-if" if="[[_isEmpty]]">
+        <div class="emptyResult">[[_computedEmptyLabel]]</div>
+      </template>
+      <nuxeo-dam-justified-gallery id="gallery">
+        <template is="dom-repeat" items="[[items]]" on-dom-change="_redrawGallery">
+          <nuxeo-dam-thumbnail
+              document="[[item]]"
+              on-selected="_selected"
+              selection-enabled="true"
+              actions-enabled="true">
+            <nuxeo-hootsuite-attach-action document="[[item]]"></nuxeo-hootsuite-attach-action>
+          </nuxeo-dam-thumbnail>
+        </template>
+      </nuxeo-dam-justified-gallery>
+    </div>
+
+    <iron-scroll-threshold id="scrollThreshold" on-lower-threshold="loadMoreResults" lower-threshold="500"
+                           scroll-target="gallery-container"></iron-scroll-threshold>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'rainier-sports-assets-grid',
+
+      behaviors: [
+        Polymer.IronResizableBehavior,
+        Nuxeo.DamPageProviderDisplayBehavior
+      ],
+
+      properties: {
+        provider: String,
+
+        params: {
+          type: Object,
+          value: {}
+        },
+
+        page: {
+          type: Number,
+          value: 0
+        },
+
+        pageSize: {
+          type: Number,
+          value: 40
+        },
+
+        selectedItems: {
+          type: Object,
+          notify: true
+        },
+
+        aggregations: {
+          type: Object,
+          notify: true
+        }
+      },
+
+      observers: [
+        '_paramsChanged(params.*)'
+      ],
+
+      clearSelection: function() {
+        var elements = Polymer.dom(this.root).querySelectorAll('nuxeo-dam-thumbnail[selected]');
+        elements.forEach(function(element) {
+          element.selected = false;
+        });
+        this.splice('selectedItems', 0, this.selectedItems.length);
+        this._updateFlags();
+      },
+
+      loadMoreResults: function() {
+        this.$.scrollThreshold.clearTriggers();
+        this._loadResults();
+      },
+
+      reset: function() {
+        this.items = [];
+        this.page = 0;
+        this.loadMoreResults();
+      },
+
+      _paramsChanged: function() {
+        this.clearSelection();
+        this.page = 0;
+        if (Object.keys(this.params).length > 0) {
+          this.loadMoreResults();
+        }
+      },
+
+      _redrawGallery: function() {
+        this.$.gallery._redraw();
+      },
+
+      _selected: function(e) {
+        var element = e.target || e.srcElement;
+        if (element.selected) {
+          if (this.selectedItems.indexOf(element.document) < 0) {
+            this.push('selectedItems', element.document);
+          }
+        } else if (this.selectedItems.indexOf(element.document) >= 0) {
+          this.splice('selectedItems', this.selectedItems.indexOf(element.document), 1);
+        }
+        this._updateFlags();
+      },
+
+      _loadResults: function() {
+        this.debounce('load-results', function() {
+          if (this.$.nxProvider.isNextPageAvailable || this.page === 0) {
+            this.page = this.page + 1;
+            this.$.nxProvider.fetch().then(function(results) {
+              if (this.page === 1) {
+                this.set('items', []);
+              }
+              results.entries.forEach(function(doc) {
+                this.push('items', doc);
+              }.bind(this));
+            }.bind(this));
+          }
+        }.bind(this), 500);
+      }
+    });
+  </script>
+</dom-module>

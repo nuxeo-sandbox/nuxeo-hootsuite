@@ -1,0 +1,65 @@
+<link rel="import" href="../../bower_components/nuxeo-elements/nuxeo-operation.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+
+<dom-module id="nuxeo-hootsuite-attach-action">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+    </style>
+
+    <nuxeo-operation id="getAttachInfo" op="Hootsuite.GetInfoToAttachAsset" input="[[input]]" params="[[params]]" on-response="_handleResponse"></nuxeo-operation>
+    <paper-icon-button icon="[[icon]]" on-tap="_attach" noink></paper-icon-button>
+    <paper-tooltip>Attach</paper-tooltip>
+    <paper-spinner id="spinner"></paper-spinner>
+
+  </template>
+
+  <script>
+  /*jshint esversion: 6 */
+  (function() {
+    Polymer({
+      is: 'nuxeo-hootsuite-attach-action',
+      properties: {
+
+        /**
+         * Input document.
+         */
+        document: {
+          type : Object
+        },
+
+        /**
+         * Icon to use (iconset_name:icon_name).
+         */
+        icon: {
+          type: String,
+          value: 'icons:attachment'
+        }
+
+      },
+
+      _attach: function() {
+        var uid = new URL(window.location.href).searchParams.get("uid");
+        this.params = {
+          userID : uid
+        }
+        this.input = 'doc:'+this.document.uid;
+        this.$.getAttachInfo.execute();
+        this.$.spinner.active = true;
+      },
+
+      _handleResponse: function(e) {
+        this.$.spinner.active = false;
+        var info = e.detail.response;
+        var result = hsp.attachFileToMessage(info);
+      }
+
+    });
+  })();
+  </script>
+
+</dom-module>

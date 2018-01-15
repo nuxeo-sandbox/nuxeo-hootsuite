@@ -1,0 +1,159 @@
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<script type="text/javascript" src="justified-layout.js"></script>
+
+<!--
+A gallery for images using flickr justified-layout.
+
+based on https://github.com/Collaborne/iron-justified-gallery
+
+### Example
+
+```html
+<dam-justified-gallery row-height="220"></dam-justified-gallery>
+```
+
+-->
+<dom-module id="nuxeo-dam-justified-gallery">
+  <template>
+    <style>
+      :host {
+        position: relative;
+        display: block;
+      }
+    </style>
+    <content id="items"></content>
+  </template>
+  <script>
+    /*jshint esversion: 6 */
+    (function() {
+      const justifiedLayout = require('justified-layout');
+      Polymer({
+        is: 'nuxeo-dam-justified-gallery',
+        properties: {
+          /**
+           * Height of a single row in the gallery
+           */
+          rowHeight: {
+            type: Number,
+            value: 200
+          }
+        },
+
+        behaviors: [
+          Polymer.IronResizableBehavior
+        ],
+
+        listeners: {
+          /**
+           * Everytime a width dimension of the gallery space changes,
+           * the gallery needs to be recalculated.
+           * Function is called every-time the window resizes (and once at the page load,
+           * more details: https://elements.polymer-project.org/elements/iron-resizable-behavior?active=Polymer.IronResizableBehavior)
+           */
+          'iron-resize': '_redraw',
+          'nuxeo-thumbnail-update': '_redraw'
+        },
+
+        ready: function() {
+          var context = this;
+          Polymer.dom( this.$.items ).observeNodes( function( info ) {
+            context._redraw();
+          });
+        },
+
+        /**
+         * Generates the elements that are going to hold the images with the right positioning and dimensions.
+         * Attaches the elements to the DOM.
+         *
+         * @param images is the array of images that will be rendered
+         * @param rowHeight the height of a single row. Either set or defaults
+         *				to 200px.
+         */
+        _renderImages: function() {
+          var items = this.getContentChildren('#items');
+          var imgItems = [];
+          var images = [];
+          items.forEach(function(item) {
+            if (item.getImageInfo !== undefined) {
+              imgItems.push(item);
+              images.push(item.getImageInfo());
+            }
+          });
+
+          if (imgItems.length === 0) {
+            // set the dimensions of the gallery
+            this.style.height = "0px";
+            return;
+          }
+
+          const galleryParameters = {
+            containerWidth: this.offsetWidth,
+            targetRowHeight: this.rowHeight,
+            containerPadding: 0
+          };
+
+          // extract image widths
+          const normalizedVector = this._computeArrayOfRelativeBoxSizes(images);
+          const geometry = justifiedLayout(normalizedVector, galleryParameters);
+
+          for (let i = 0; i < images.length; i++) {
+            const url = images[i].url;
+            const box = geometry.boxes[i];
+
+            var item = imgItems[i];
+            item.style.width = box.width+ "px";
+            item.style.height = box.height+ "px";
+            item.style.top = box.top+ "px";
+            item.style.left = box.left+ "px";
+            item.style.position = 'absolute';
+          }
+
+          // set the dimensions of the gallery
+          this.style.height = geometry.containerHeight + "px";
+        },
+
+        /**
+         * Function re-renders images if the input has changed
+         */
+        _redraw: function() {
+          // Avoid race condition on initial load: the data might be set
+          // before the width of the element is known
+          this.debounce('redraw',() => this._renderImages(),100);
+        },
+
+        /**
+         * Computes the array of box sizes for all attached images. The
+         * vector is build from image ratios (width:height) if both values are provided.
+         * If height is missing the vector is build from widths normalized by
+         * minimum of all width-values. If both widths and heights are missing the
+         * result will be an array of ones.
+         *
+         * For more information about the purpose of this function see:
+         * https://github.com/flickr/justified-layout
+         *
+         * @param images array of all images provided by user
+         * @return array of box sizes computed from images
+         */
+        _computeArrayOfRelativeBoxSizes: function(images) {
+          // Check if all object instances of an array have width/height parameters
+          const allImagesHaveWidthts = images.every(image => Boolean(image.width));
+          const allImagesHaveHeights = images.every(image => Boolean(image.height));
+
+          if (allImagesHaveHeights && allImagesHaveHeights) {
+            // Calculate aspect ratio if width & height are available for all images
+            return images.map(image => image.width / image.height);
+          } else if (allImagesHaveWidthts) {
+            // Normalize width if all widths are available
+            const widths = images.map(image => image.width);
+            const minWidth = Math.min.apply(Math, widths);
+            return widths.map(width => width / minWidth);
+          } else {
+            // Default to same measure if neither widths nor heights are present
+            return new Array(images.length).fill(1);
+          }
+        },
+      });
+
+    })();
+  </script>
+</dom-module>
