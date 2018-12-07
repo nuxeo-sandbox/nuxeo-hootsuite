@@ -68,6 +68,9 @@ public class GetInfoToAttachAsset {
 
         if (blob instanceof ManagedBlob) {
             BlobProvider blobProvider = blobManager.getBlobProvider(blob);
+            if (blob.getFilename() == null) {
+                blob.setFilename(doc.getName());
+            }
             URI url = blobProvider.getURI((ManagedBlob) blob, BlobManager.UsageHint.DOWNLOAD,null);
             if (url != null) {
                 hootsuiteParams.put("url",url.toString());

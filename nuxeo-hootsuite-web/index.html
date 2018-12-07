@@ -47,8 +47,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="msapplication-TileColor" content="#3f51b5">
     <meta name="msapplication-tap-highlight" content="no">
 
-    <script src="https://d2l6uygi1pgnys.cloudfront.net/jsapi/2-0/hsp.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.7.1/sha512.js"></script>
+    <script src="https://assets.hootsuite.com/jsapi/4-0/hsp.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha512/0.8.0/sha512.min.js"></script>
 
     <script>
       // Setup Polymer options
@@ -97,10 +97,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </script>
 
-    <script>
-      hsp.init({});
-    </script>
-
     <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
     <link rel="import" href="bower_components/iron-icons/iron-icons.html">
     <link rel="import" href="bower_components/iron-iconset-svg/iron-iconset-svg.html">
@@ -127,5 +123,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <body>
     <nuxeo-connection url="/nuxeo"></nuxeo-connection>
     <rainier-sports-brand-assets></rainier-sports-brand-assets>
+    <script>
+      hsp.init({});
+    </script>
   </body>
 </html>
