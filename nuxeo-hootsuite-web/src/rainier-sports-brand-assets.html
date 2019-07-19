@@ -220,7 +220,6 @@ Contributors:
           </iron-collapse>
         </div>
 
-        <paper-button noink class="primary" on-click="_clearForm">Clear</paper-button>
       </div>
 
       <rainier-sports-assets-grid id="grid"
@@ -260,13 +259,6 @@ Contributors:
           // reset results
           this.$.grid.reset();
         }.bind(this));
-      },
-
-      _clearForm: function() {
-        this.page = 0;
-        // setting the params will trigger _paramsChanged
-        this.params = {
-        };
       },
 
       _toggle: function(e) {
