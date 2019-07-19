@@ -24,6 +24,14 @@ cd nuxeo-hootsuite
 mvn clean install
 ```
 
+## How to test locally
+```
+cd nuxeo-hootsuite-web/
+npm install
+bower install
+polymer serve
+```
+
 ## Deploying
 * Install the marketplace package from the admin center or using nuxeoctl
 * Edit nuxeo.conf
