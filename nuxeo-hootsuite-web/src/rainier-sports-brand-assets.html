@@ -238,10 +238,6 @@ Contributors:
       is: 'rainier-sports-brand-assets',
 
       properties: {
-        brand: {
-          type: Object,
-          observer: '_brandChanged'
-        },
 
         params: {
           type: Object,
@@ -266,17 +262,10 @@ Contributors:
         }.bind(this));
       },
 
-      _brandChanged: function() {
-        this._clearForm();
-        this.$.grid.reset();
-        this.$.grid.clearSelection();
-      },
-
       _clearForm: function() {
         this.page = 0;
         // setting the params will trigger _paramsChanged
         this.params = {
-          system_parentId: this.brand.uid
         };
       },
 
@@ -285,12 +274,6 @@ Contributors:
         var iconEl = e.currentTarget.querySelector('iron-icon');
         collapseEl.toggle();
         iconEl.icon = collapseEl.opened ? 'arrow-drop-up' : 'arrow-drop-down';
-      },
-
-      _banner: function(brand) {
-        if (brand && brand.properties && brand.properties['thumb:banner']) {
-          return brand.properties['thumb:banner'].data;
-        }
       },
 
       _isAggEmpty: function (agg) {
