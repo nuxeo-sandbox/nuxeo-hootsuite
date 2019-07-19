@@ -2,6 +2,8 @@
 This plugin provides an integration between Hootsuite and the Nuxeo Platform.
 Hootsuite users can search and use content from the Nuxeo Platform.
 
+[![Build Status](https://qa.nuxeo.org/jenkins/buildStatus/icon?job=Sandbox/sandbox_nuxeo-hootsuite-master)](https://qa.nuxeo.org/jenkins/job/Sandbox/job/sandbox_nuxeo-hootsuite-master/)
+
 ## Important Note
 
 **These features are not part of the Nuxeo Production platform.**
