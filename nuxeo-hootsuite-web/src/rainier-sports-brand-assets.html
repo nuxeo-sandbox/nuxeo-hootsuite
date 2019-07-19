@@ -99,7 +99,8 @@ Contributors:
 
     <div class="container">
       <div class="search-form">
-        <div class="field-container">
+
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.business_market_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Market</label>
           </div>
@@ -111,7 +112,7 @@ Contributors:
           </iron-collapse>
         </div>
 
-        <div class="field-container">
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.business_product_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Product</label>
           </div>
@@ -123,7 +124,7 @@ Contributors:
           </iron-collapse>
         </div>
 
-        <div class="field-container">
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.business_product_line_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Product Line</label>
           </div>
@@ -135,7 +136,7 @@ Contributors:
           </iron-collapse>
         </div>
 
-        <div class="field-container">
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.business_season_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Season</label>
           </div>
@@ -147,7 +148,7 @@ Contributors:
           </iron-collapse>
         </div>
 
-        <div class="field-container">
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.business_year_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Year</label>
           </div>
@@ -159,7 +160,7 @@ Contributors:
           </iron-collapse>
         </div>
 
-        <div class="field-container">
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.digital_rights_authorized_usage_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Authorized Usage</label>
           </div>
@@ -171,7 +172,7 @@ Contributors:
           </iron-collapse>
         </div>
 
-        <div class="field-container">
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.digital_rights_start_date_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Start Date</label>
           </div>
@@ -183,7 +184,7 @@ Contributors:
           </iron-collapse>
         </div>
 
-        <div class="field-container">
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.digital_rights_expiration_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Expiration Date</label>
           </div>
@@ -266,6 +267,24 @@ Contributors:
         if (brand && brand.properties && brand.properties['thumb:banner']) {
           return brand.properties['thumb:banner'].data;
         }
+      },
+
+      _isAggEmpty: function (agg) {
+        if(agg){
+          return agg && this._isBucketEmpty(agg.buckets);
+        }else {
+          return true;
+        }
+      },
+
+      _isBucketEmpty: function (buckets) {
+        var isEmpty = true;
+        buckets.forEach(function (bucket) {
+          if (bucket.docCount > 0) {
+            isEmpty = false;
+          }
+        });
+        return isEmpty;
       }
     });
   </script>
