@@ -15,6 +15,7 @@ Building requires the following software:
 - git
 - maven
 - npm
+- bower
 
 ## How to build
 ```
