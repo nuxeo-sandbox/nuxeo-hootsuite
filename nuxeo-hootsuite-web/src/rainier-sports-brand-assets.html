@@ -100,6 +100,30 @@ Contributors:
     <div class="container">
       <div class="search-form">
 
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.system_primaryType_agg)]]">
+          <div class="field-header layout horizontal center" on-tap="_toggle">
+            <label class="flex">Type</label>
+          </div>
+          <iron-collapse opened>
+            <div class="collapse-content">
+              <nuxeo-checkbox-aggregation-fix data="[[aggregations.system_primaryType_agg]]"
+                                          value="{{params.system_primaryType_agg}}"></nuxeo-checkbox-aggregation-fix>
+            </div>
+          </iron-collapse>
+        </div>
+
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.file_content_mime-type_agg)]]">
+          <div class="field-header layout horizontal center" on-tap="_toggle">
+            <label class="flex">MIME-Type</label>
+          </div>
+          <iron-collapse opened>
+            <div class="collapse-content">
+              <nuxeo-checkbox-aggregation-fix data="[[aggregations.file_content_mime-type_agg]]"
+                                          value="{{params.file_content_mime-type_agg}}"></nuxeo-checkbox-aggregation-fix>
+            </div>
+          </iron-collapse>
+        </div>
+
         <div class="field-container" hidden$="[[_isAggEmpty(aggregations.business_market_agg)]]">
           <div class="field-header layout horizontal center" on-tap="_toggle">
             <label class="flex">Market</label>
