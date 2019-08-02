@@ -2,6 +2,8 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
 
 <dom-module id="nuxeo-hootsuite-attach-action">
   <template>
@@ -9,12 +11,19 @@
       :host {
         display: inline-block;
       }
+
+      #toast_error {
+        --paper-toast-background-color: red;
+        --paper-toast-color: white;
+      }
+
     </style>
 
-    <nuxeo-operation id="getAttachInfo" op="Hootsuite.GetInfoToAttachAsset" input="[[input]]" params="[[params]]" on-response="_handleResponse"></nuxeo-operation>
+    <nuxeo-operation id="getAttachInfo" op="Hootsuite.GetInfoToAttachAsset" input="[[input]]" params="[[params]]"></nuxeo-operation>
     <paper-icon-button icon="[[icon]]" on-tap="_attach" noink></paper-icon-button>
     <paper-tooltip>Attach</paper-tooltip>
     <paper-spinner id="spinner"></paper-spinner>
+    <paper-toast id="toast_error"></paper-toast>
 
   </template>
 
@@ -48,14 +57,21 @@
           userID : uid
         }
         this.input = 'doc:'+this.document.uid;
-        this.$.getAttachInfo.execute();
+        this.$.getAttachInfo.execute().then(function(response) {
+          this.$.spinner.active = false;
+          hsp.attachFileToMessage(response);
+        }.bind(this),function(error) {
+          this.$.spinner.active = false;
+          console.log(error);
+          this._toastError('An Error Occured While Fetching the Asset Info');
+        }.bind(this));;;
         this.$.spinner.active = true;
       },
 
-      _handleResponse: function(e) {
-        this.$.spinner.active = false;
-        var info = e.detail.response;
-        var result = hsp.attachFileToMessage(info);
+      _toastError: function(text) {
+        this.$.toast_error.hide();
+        this.$.toast_error.text = text;
+        this.$.toast_error.open();
       }
 
     });
