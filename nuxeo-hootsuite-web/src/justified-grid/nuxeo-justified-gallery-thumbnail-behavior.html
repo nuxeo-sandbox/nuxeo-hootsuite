@@ -19,9 +19,9 @@ limitations under the License.
   (function() {
 
     /**
-     * @polymerBehavior Nuxeo.DamThumbnailBehavior
+     * @polymerBehavior Nuxeo.HootsuiteThumbnailBehavior
      */
-    Nuxeo.DamThumbnailBehavior = {
+    Nuxeo.HootsuiteThumbnailBehavior = {
 
       properties: {
 
@@ -34,19 +34,13 @@ limitations under the License.
       getImageInfo: function() {
         var image;
         var thumbnailView;
-        switch (this.document.type) {
-          case 'Picture':
-            image = this._handleAssets();
-            break;
-          case 'Video':
-            image = this._handleAssets();
-            break;
-          default:
+        if (this.document.facets.includes('Picture') || this.document.facets.includes('Video')) {
+          image = this._handleAssets();
+        } else {
             image = this._extractFromThumbnailEnricher();
         }
         return image;
       },
-
 
       _handleAssets: function() {
         if (this._hasPictureViews()) {
@@ -79,7 +73,7 @@ limitations under the License.
         return this.document.properties['picture:views'] !== undefined &&
         this.document.properties['picture:views'].length > 0;
       },
-      
+
       documentChanged: function() {
         this.fire('nuxeo-thumbnail-update');
       }

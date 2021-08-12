@@ -13,7 +13,7 @@ based on https://github.com/Collaborne/iron-justified-gallery
 ```
 
 -->
-<dom-module id="nuxeo-dam-justified-gallery">
+<dom-module id="nuxeo-justified-gallery">
   <template>
     <style>
       :host {
@@ -21,14 +21,14 @@ based on https://github.com/Collaborne/iron-justified-gallery
         display: block;
       }
     </style>
-    <content id="items"></content>
+    <slot id="items"></slot>
   </template>
   <script>
     /*jshint esversion: 6 */
     (function() {
       const justifiedLayout = require('justified-layout');
       Polymer({
-        is: 'nuxeo-dam-justified-gallery',
+        is: 'nuxeo-justified-gallery',
         properties: {
           /**
            * Height of a single row in the gallery
@@ -70,7 +70,7 @@ based on https://github.com/Collaborne/iron-justified-gallery
          *				to 200px.
          */
         _renderImages: function() {
-          var items = this.getContentChildren('#items');
+          var items = this.querySelectorAll('nuxeo-justified-gallery-thumbnail');
           var imgItems = [];
           var images = [];
           items.forEach(function(item) {

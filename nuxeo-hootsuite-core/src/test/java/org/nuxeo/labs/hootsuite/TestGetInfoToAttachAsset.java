@@ -32,9 +32,8 @@ import java.io.Serializable;
 @RepositoryConfig(init = DefaultRepositoryInit.class, cleanup = Granularity.METHOD)
 @Deploy({
     "nuxeo-hootsuite-core",
-    "org.nuxeo.ecm.platform.picture.api",
     "org.nuxeo.ecm.platform.picture.core",
-    "org.nuxeo.ecm.platform.video.core",
+    "org.nuxeo.ecm.platform.video",
     "org.nuxeo.ecm.platform.tag"
 })
 public class TestGetInfoToAttachAsset {

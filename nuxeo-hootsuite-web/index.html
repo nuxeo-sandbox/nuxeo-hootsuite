@@ -81,7 +81,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         if (!webComponentsSupported) {
           var script = document.createElement('script');
           script.async = true;
-          script.src = './bower_components/webcomponentsjs/webcomponents-lite.min.js';
+          script.src = './bower_components/webcomponentsjs/webcomponents-lite.js';
           script.onload = onload;
           document.head.appendChild(script);
         } else {
@@ -100,15 +100,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
     <link rel="import" href="bower_components/iron-icons/iron-icons.html">
     <link rel="import" href="bower_components/iron-iconset-svg/iron-iconset-svg.html">
-    <link rel="import" href="bower_components/iron-icons/communication-icons.html">
-    <link rel="import" href="bower_components/iron-icons/editor-icons.html">
-    <link rel="import" href="bower_components/iron-icons/hardware-icons.html">
-    <link rel="import" href="bower_components/iron-icons/image-icons.html">
-    <link rel="import" href="bower_components/iron-icons/notification-icons.html">
-    <link rel="import" href="bower_components/iron-icons/social-icons.html">
     <link rel="import" href="styles/styles.html">
+    <link rel="import" href="styles/nuxeo-styles.html">
     <link rel="import" href="bower_components/nuxeo-elements/nuxeo-connection.html">
-    <link rel="import" href="./src/rainier-sports-brand-assets.html">
+    <link rel="import" href="src/nuxeo-hootsuite-main.html">
 
     <style>
       body {
@@ -122,7 +117,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
   <body>
     <nuxeo-connection url="/nuxeo"></nuxeo-connection>
-    <rainier-sports-brand-assets></rainier-sports-brand-assets>
+    <nuxeo-hootsuite-main></nuxeo-hootsuite-main>
     <script>
       hsp.init({});
     </script>

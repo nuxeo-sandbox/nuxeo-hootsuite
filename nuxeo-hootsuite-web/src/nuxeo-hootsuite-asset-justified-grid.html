@@ -21,14 +21,14 @@ Contributors:
 <link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/nuxeo-elements/nuxeo-page-provider.html">
 <link rel="import" href="../bower_components/nuxeo-ui-elements/nuxeo-icons.html">
+<link rel="import" href="../bower_components/nuxeo-ui-elements/actions/nuxeo-preview-button.html">
 
-<link rel="import" href="justified-grid/nuxeo-dam-justified-gallery.html">
-<link rel="import" href="justified-grid/nuxeo-dam-thumbnail.html">
-<link rel="import" href="justified-grid/nuxeo-dam-pageprovider-behavior.html">
-
+<link rel="import" href="justified-grid/nuxeo-justified-gallery.html">
+<link rel="import" href="justified-grid/nuxeo-justified-gallery-thumbnail.html">
 <link rel="import" href="actions/nuxeo-hootsuite-attach-action.html">
 
-<dom-module id="rainier-sports-assets-grid">
+
+<dom-module id="nuxeo-hootsuite-asset-justified-grid">
   <template>
     <style>
       #gallery-container {
@@ -39,7 +39,7 @@ Contributors:
         padding: 1em;
       }
 
-      nuxeo-dam-justified-gallery {
+      nuxeo-justified-gallery {
         display: block;
         height: 100%;
         width: 100%;
@@ -53,11 +53,22 @@ Contributors:
         text-align: center;
         font-size: 1.1rem;
       }
-    </style>
 
-    <rainier-sports-selection-toolbar selected-items="[[selectedItems]]">
-      <content></content>
-    </rainier-sports-selection-toolbar>
+      nuxeo-preview-button {
+        z-index: 1000;
+      }
+
+      .dialogs {
+        height: 0px;
+        width: 0px;
+        overflow: hidden;
+      }
+
+      .actions {
+        @apply(--layout-horizontal);
+      }
+
+    </style>
 
     <nuxeo-page-provider id="nxProvider"
                          provider="[[provider]]"
@@ -65,26 +76,40 @@ Contributors:
                          params="[[params]]"
                          page-size="[[pageSize]]"
                          page="{{page}}"
-                         enrichers="thumbnail"
+                         enrichers="thumbnail, publicDownload"
                          headers='{"fetch.document": "properties"}'
                          fetch-aggregates>
     </nuxeo-page-provider>
+
+    <div class="dialogs">
+      <nuxeo-hootsuite-attach-action id="attachDialog"></nuxeo-hootsuite-attach-action>
+      <nuxeo-preview-button id="previewDialog"></nuxeo-preview-button>
+    </div>
 
     <div id="gallery-container">
       <template is="dom-if" if="[[_isEmpty]]">
         <div class="emptyResult">[[_computedEmptyLabel]]</div>
       </template>
-      <nuxeo-dam-justified-gallery id="gallery">
+      <nuxeo-justified-gallery id="gallery">
         <template is="dom-repeat" items="[[items]]" on-dom-change="_redrawGallery">
-          <nuxeo-dam-thumbnail
-              document="[[item]]"
-              on-selected="_selected"
-              selection-enabled="true"
-              actions-enabled="true">
-            <nuxeo-hootsuite-attach-action document="[[item]]"></nuxeo-hootsuite-attach-action>
-          </nuxeo-dam-thumbnail>
+          <nuxeo-justified-gallery-thumbnail
+            document="[[item]]"
+            on-selected="_selected"
+            selection-enabled="true"
+            actions-enabled="true">
+            <div class="actions">
+              <div class="action" on-tap="_attach">
+                <paper-icon-button id="attach" icon="icons:attachment" noink></paper-icon-button>
+              </div>
+              <paper-tooltip for="attach">Attach</paper-tooltip>
+              <div class="action" on-tap="_preview">
+                <paper-icon-button id="preview" icon="nuxeo:preview" noink></paper-icon-button>
+              </div>
+              <paper-tooltip for="preview">Preview</paper-tooltip>
+            </div>
+          </nuxeo-justified-gallery-thumbnail>
         </template>
-      </nuxeo-dam-justified-gallery>
+      </nuxeo-justified-gallery>
     </div>
 
     <iron-scroll-threshold id="scrollThreshold" on-lower-threshold="loadMoreResults" lower-threshold="500"
@@ -93,11 +118,10 @@ Contributors:
   </template>
   <script>
     Polymer({
-      is: 'rainier-sports-assets-grid',
+      is: 'nuxeo-hootsuite-asset-justified-grid',
 
       behaviors: [
-        Polymer.IronResizableBehavior,
-        Nuxeo.DamPageProviderDisplayBehavior
+        Polymer.IronResizableBehavior
       ],
 
       properties: {
@@ -133,65 +157,66 @@ Contributors:
         '_paramsChanged(params.*)'
       ],
 
-      clearSelection: function() {
-        var elements = Polymer.dom(this.root).querySelectorAll('nuxeo-dam-thumbnail[selected]');
-        elements.forEach(function(element) {
-          element.selected = false;
-        });
-        this.splice('selectedItems', 0, this.selectedItems.length);
-        this._updateFlags();
-      },
-
-      loadMoreResults: function() {
+      loadMoreResults: function () {
         this.$.scrollThreshold.clearTriggers();
         this._loadResults();
       },
 
-      reset: function() {
+      reset: function () {
         this.items = [];
         this.page = 0;
         this.loadMoreResults();
       },
 
-      _paramsChanged: function() {
-        this.clearSelection();
+      _paramsChanged: function () {
         this.page = 0;
         if (Object.keys(this.params).length > 0) {
           this.loadMoreResults();
         }
       },
 
-      _redrawGallery: function() {
+      _redrawGallery: function () {
         this.$.gallery._redraw();
       },
 
-      _selected: function(e) {
-        var element = e.target || e.srcElement;
-        if (element.selected) {
-          if (this.selectedItems.indexOf(element.document) < 0) {
-            this.push('selectedItems', element.document);
-          }
-        } else if (this.selectedItems.indexOf(element.document) >= 0) {
-          this.splice('selectedItems', this.selectedItems.indexOf(element.document), 1);
-        }
-        this._updateFlags();
-      },
-
-      _loadResults: function() {
-        this.debounce('load-results', function() {
+      _loadResults: function () {
+        this.debounce('load-results', function () {
           if (this.$.nxProvider.isNextPageAvailable || this.page === 0) {
             this.page = this.page + 1;
-            this.$.nxProvider.fetch().then(function(results) {
+            this.$.nxProvider.fetch().then(function (results) {
               if (this.page === 1) {
                 this.set('items', []);
               }
-              results.entries.forEach(function(doc) {
+              results.entries.forEach(function (doc) {
                 this.push('items', doc);
               }.bind(this));
             }.bind(this));
           }
         }.bind(this), 500);
+      },
+
+      _attach: function (e) {
+        let doc = e.model.item;
+        this.$.attachDialog.document = doc;
+        this.$.attachDialog._toggleDialog();
+      },
+
+      _preview: function (e) {
+        let doc = e.model.item;
+        this.$.previewDialog.document = doc;
+        this.$.previewDialog._toggleDialog();
+      },
+
+      _crop: function (e) {
+        let doc = e.model.item;
+        this.$.transformDialog.document = doc;
+        this.$.transformDialog._toggleDialog();
+      },
+
+      _isPicture: function (doc) {
+        return doc && doc.facets.includes('Picture');
       }
+
     });
   </script>
 </dom-module>

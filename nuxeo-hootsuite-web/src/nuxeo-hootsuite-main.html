@@ -1,0 +1,246 @@
+<!--
+(C) Copyright 2017 Nuxeo (http://nuxeo.com/) and others.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+Contributors:
+   Andre Justo <ajusto@nuxeo.com>
+-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/nuxeo-ui-elements/nuxeo-aggregation/nuxeo-checkbox-aggregation.html">
+<link rel="import" href="../bower_components/nuxeo-ui-elements/widgets/nuxeo-input.html">
+
+<link rel="import" href="nuxeo-hootsuite-asset-justified-grid.html">
+
+<dom-module id="nuxeo-hootsuite-main">
+  <template>
+    <style include="iron-flex">
+      .container {
+        @apply(--layout-horizontal);
+        height: 100vh;
+      }
+
+      .search-form {
+        @apply(--layout-vertical);
+        background: var(--rainier-portal-box);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1) inset, 0 3px 5px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+        overflow-y: scroll;
+        padding: 1em 1.5em;
+        width: 250px;
+      }
+
+      .field-header, label {
+        cursor: pointer;
+      }
+
+      .field-container {
+        margin-bottom: 32px;
+      }
+
+      .field-container label {
+        display: block;
+        font-weight: 400 !important;
+        letter-spacing: 0.005em !important;
+        margin-bottom: .2em;
+        opacity: .7;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      paper-button {
+        min-height: 40px;
+      }
+
+      nuxeo-hootsuite-asset-justified-grid {
+        width: 95%;
+      }
+    </style>
+
+    <div class="container">
+      <div class="search-form">
+
+        <nuxeo-input label="fulltext" value="{{searchTerm}}" class="field-container" on-keydown="_checkForEnter"></nuxeo-input>
+
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.system_mixinType_agg)]]">
+          <div class="field-header layout horizontal center" on-tap="_toggle">
+            <label class="flex">Type</label>
+          </div>
+          <iron-collapse opened>
+            <div class="collapse-content">
+              <nuxeo-checkbox-aggregation data="[[aggregations.system_mixinType_agg]]"
+                                          value="{{params.system_mixinType_agg}}"></nuxeo-checkbox-aggregation>
+            </div>
+          </iron-collapse>
+        </div>
+
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.dublincore_language_agg)]]">
+          <div class="field-header layout horizontal center" on-tap="_toggle">
+            <label class="flex">Language</label>
+          </div>
+          <iron-collapse opened>
+            <div class="collapse-content">
+              <nuxeo-checkbox-aggregation data="[[aggregations.dublincore_language_agg]]"
+                                          value="{{params.dublincore_language_agg}}"></nuxeo-checkbox-aggregation>
+            </div>
+          </iron-collapse>
+        </div>
+
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.relations_denormalized_products_brand_agg)]]">
+          <div class="field-header layout horizontal center" on-tap="_toggle">
+            <label class="flex">Brand</label>
+          </div>
+          <iron-collapse opened>
+            <div class="collapse-content">
+              <nuxeo-checkbox-aggregation data="[[aggregations.relations_denormalized_products_brand_agg]]"
+                                          value="{{params.relations_denormalized_products_brand_agg}}"></nuxeo-checkbox-aggregation>
+            </div>
+          </iron-collapse>
+        </div>
+
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.relations_denormalized_products_brand_agg)]]">
+          <div class="field-header layout horizontal center" on-tap="_toggle">
+            <label class="flex">Product</label>
+          </div>
+          <iron-collapse opened>
+            <div class="collapse-content">
+              <nuxeo-checkbox-aggregation data="[[aggregations.relations_products_agg]]"
+                                          value="{{params.relations_products_agg}}"></nuxeo-checkbox-aggregation>
+            </div>
+          </iron-collapse>
+        </div>
+
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.relations_talents_agg)]]">
+          <div class="field-header layout horizontal center" on-tap="_toggle">
+            <label class="flex">Talent</label>
+          </div>
+          <iron-collapse opened>
+            <div class="collapse-content">
+              <nuxeo-checkbox-aggregation data="[[aggregations.relations_talents_agg]]"
+                                          value="{{params.relations_talents_agg}}"></nuxeo-checkbox-aggregation>
+            </div>
+          </iron-collapse>
+        </div>
+
+        <div class="field-container" hidden$="[[_isAggEmpty(aggregations.relations_locations_agg)]]">
+          <div class="field-header layout horizontal center" on-tap="_toggle">
+            <label class="flex">Location</label>
+          </div>
+          <iron-collapse opened>
+            <div class="collapse-content">
+              <nuxeo-checkbox-aggregation data="[[aggregations.relations_locations_agg]]"
+                                          value="{{params.relations_locations_agg}}"></nuxeo-checkbox-aggregation>
+            </div>
+          </iron-collapse>
+        </div>
+
+      </div>
+
+      <nuxeo-hootsuite-asset-justified-grid id="grid"
+                                  provider="asset-search-portal"
+                                  selected-items="{{selectedItems}}"
+                                  page="[[page]]"
+                                  params="[[params]]"
+                                  aggregations="{{aggregations}}">
+      </nuxeo-hootsuite-asset-justified-grid>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'nuxeo-hootsuite-main',
+
+      behaviors: [
+        Polymer.IronResizableBehavior
+      ],
+
+      properties: {
+
+        params: {
+          type: Object,
+          value: function(){
+            return {
+              'channel_type':'social'
+            };
+          },
+          notify: true
+        },
+
+        page: {
+          type: Number,
+          value: 0
+        }
+      },
+
+      ready: function() {
+        // <rainier-sports-selection-toolbar> needs to be added to the <body> to able to overlap the <app-toolbar>
+        // therefore we are not able to listen for toolbar events using the usual `listeners` from polymer
+        /*window.addEventListener('selection-toolbar-clear', function() {
+          this.$.grid.clearSelection();
+        }.bind(this));
+        window.addEventListener('assets-deleted', function() {
+          // reset results
+          this.$.grid.reset();
+        }.bind(this));*/
+      },
+
+      _toggle: function(e) {
+        var collapseEl = e.currentTarget.nextElementSibling;
+        var iconEl = e.currentTarget.querySelector('iron-icon');
+        collapseEl.toggle();
+        iconEl.icon = collapseEl.opened ? 'arrow-drop-up' : 'arrow-drop-down';
+      },
+
+      _isAggEmpty: function (agg) {
+        if(agg){
+          return agg && this._isBucketEmpty(agg.buckets);
+        }else {
+          return true;
+        }
+      },
+
+      _isBucketEmpty: function (buckets) {
+        var isEmpty = true;
+        buckets.forEach(function (bucket) {
+          if (bucket.docCount > 0) {
+            isEmpty = false;
+          }
+        });
+        return isEmpty;
+      },
+
+      _checkForEnter(e) {
+        if (e.keyCode === 13) {
+          this._search();
+        }
+      },
+
+      _search() {
+        if (this.searchTerm) {
+          this.set('params.system_fulltext', this.searchTerm);
+        } else if (this.params.system_fulltext) {
+          this.set('params.system_fulltext', '');
+        }
+      }
+
+    });
+  </script>
+</dom-module>

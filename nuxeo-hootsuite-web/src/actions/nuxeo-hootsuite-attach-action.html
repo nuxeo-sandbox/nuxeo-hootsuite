@@ -1,28 +1,54 @@
 <link rel="import" href="../../bower_components/nuxeo-elements/nuxeo-operation.html">
+<link rel="import" href="../../bower_components/nuxeo-ui-elements/widgets/nuxeo-dialog.html">
+<link rel="import" href="../../bower_components/nuxeo-ui-elements/widgets/nuxeo-select.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../../bower_components/nuxeo-ui-elements/actions/nuxeo-action-button-styles.html">
 
 
 <dom-module id="nuxeo-hootsuite-attach-action">
   <template>
-    <style>
-      :host {
-        display: inline-block;
+    <style include="nuxeo-action-button-styles">
+      .content {
+        @apply(--layout-vertical);
       }
 
       #toast_error {
         --paper-toast-background-color: red;
         --paper-toast-color: white;
       }
-
     </style>
 
     <nuxeo-operation id="getAttachInfo" op="Hootsuite.GetInfoToAttachAsset" input="[[input]]" params="[[params]]"></nuxeo-operation>
-    <paper-icon-button icon="[[icon]]" on-tap="_attach" noink></paper-icon-button>
-    <paper-tooltip>Attach</paper-tooltip>
-    <paper-spinner id="spinner"></paper-spinner>
+
+    <div class="action" on-tap="_toggleDialog">
+      <paper-icon-button id="bt" icon="[[icon]]" noink></paper-icon-button>
+    </div>
+    <paper-tooltip for="bt">Attach</paper-tooltip>
+
+    <nuxeo-dialog id="dialog" on-iron-overlay-closed="_dialogClosed" with-backdrop modal reparent>
+      <h2>Select Format</h2>
+      <div class="content">
+        <div>
+          <label>Available Formats</label>
+          <nuxeo-select options=[[_getRenditions(document)]] selected={{selected}}></nuxeo-select>
+        </div>
+      </div>
+      <paper-progress id="progress" indeterminate disabled></paper-progress>
+      <div class="actions">
+        <paper-button noink dialog-dismiss>
+          Cancel
+        </paper-button>
+        <paper-button id="proceed" noink class="primary" on-tap="_attach">
+          Attach
+        </paper-button>
+        <paper-spinner id="spinner"></paper-spinner>
+      </div>
+    </nuxeo-dialog>
+
     <paper-toast id="toast_error"></paper-toast>
 
   </template>
@@ -47,19 +73,25 @@
         icon: {
           type: String,
           value: 'icons:attachment'
-        }
+        },
+
+        listeners: {
+          'iron-resize': '_filterSelect',
+        },
 
       },
 
       _attach: function() {
         var uid = new URL(window.location.href).searchParams.get("uid");
         this.params = {
-          userID : uid
+          userID : uid,
+          rendition: this.selected
         }
         this.input = 'doc:'+this.document.uid;
         this.$.getAttachInfo.execute().then(function(response) {
           this.$.spinner.active = false;
           hsp.attachFileToMessage(response);
+          this._toggleDialog();
         }.bind(this),function(error) {
           this.$.spinner.active = false;
           console.log(error);
@@ -68,10 +100,38 @@
         this.$.spinner.active = true;
       },
 
+      _toggleDialog: function() {
+        this.$.dialog.toggle();
+      },
+
       _toastError: function(text) {
         this.$.toast_error.hide();
         this.$.toast_error.text = text;
         this.$.toast_error.open();
+      },
+
+      _getRenditions: function(document) {
+        if (document && document.facets.includes('Picture')) {
+          return document.properties['picture:views'].map(view => {
+            return {
+              id: view.title,
+              label: `${view.title} (${view.info.width}x${view.info.height} ${view.info.format})`
+            };
+          })
+        } else if (document && document.facets.includes('Video')) {
+          return document.properties['vid:transcodedVideos'].map(view => {
+            return {
+              id: view.name,
+              label: `${view.name}`
+            };
+          })
+        } else {
+          return [];
+        }
+      },
+
+      _filterSelect: function(e) {
+        return;
       }
 
     });

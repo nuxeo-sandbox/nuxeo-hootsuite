@@ -5,7 +5,7 @@
     <p>Put here an HTML description of your Nuxeo Package.</p>
   </description>
   <!-- <home-page>http://doc.nuxeo.com/</home-page> -->
-  <vendor>nuxeo</vendor>
+  <vendor>Nuxeo</vendor>
   <installer restart="true" />
   <uninstaller restart="true" />
   <!-- <hotreload-support>false</hotreload-support> -->
@@ -16,8 +16,7 @@
   <production-state>testing</production-state>
   <supported>false</supported>
   <platforms>
-    <platform>server-@DISTRIB_VERSION@</platform>
-    <platform>server-@DISTRIB_VERSION@-HF*</platform>
+    <platform>lts-@NUXEO_TARGET_VERSION@</platform>
   </platforms>
   <!-- Dependencies on other packages -->
   <!-- <dependencies> -->
@@ -35,8 +34,8 @@
   <!-- <provides> -->
   <!-- <package>an-embedded-package:1.0.0:1.0.0</package> -->
   <!-- </provides> -->
-  <license>Apache License, Version 2.0</license>
-  <license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
+  <license>Apache-2.0</license>
+  <license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
   <!-- Visibility: PRIVATE | MARKETPLACE | DEV | PUBLIC -->
-  <visibility>DEV</visibility>
+  <visibility>PUBLIC</visibility>
 </package>

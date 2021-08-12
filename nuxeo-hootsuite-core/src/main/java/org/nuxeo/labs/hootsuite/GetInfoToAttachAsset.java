@@ -1,5 +1,6 @@
 package org.nuxeo.labs.hootsuite;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.nuxeo.ecm.automation.core.annotations.Context;
@@ -40,6 +41,9 @@ public class GetInfoToAttachAsset {
     @Param(name = "userID", required = true)
     protected String userID;
 
+    @Param(name = "directUrl", required = false)
+    protected String url;
+
     @Context
     protected CoreSession session;
 
@@ -56,12 +60,20 @@ public class GetInfoToAttachAsset {
 
         JSONObject hootsuiteParams = new JSONObject();
 
-        if (doc.hasFacet("Picture")) {
+        if (StringUtils.isNotEmpty(url)) {
+            hootsuiteParams.put("url",url);
+            hootsuiteParams.put("name",doc.getPropertyValue("dc:title"));
+            hootsuiteParams.put("extension","jpg");
+            setToken(hootsuiteParams);
+            StringBlob result = new StringBlob(hootsuiteParams.toString());
+            result.setMimeType("application/json");
+            return result;
+        } else if (doc.hasFacet("Picture")) {
             PictureResourceAdapter picture = doc.getAdapter(PictureResourceAdapter.class);
-            blob = picture.getPictureFromTitle("FullHD");
+            blob = picture.getPictureFromTitle(rendition != null ? rendition : "FullHD");
         } else if (doc.hasFacet("Video")) {
             VideoDocument videoDocument = doc.getAdapter(VideoDocument.class);
-            blob = videoDocument.getTranscodedVideo("MP4 1080p").getBlob();
+            blob = videoDocument.getTranscodedVideo(rendition != null ? rendition : "MP4 1080p").getBlob();
         } else {
             hootsuiteParams.put("error","Input document is not an asset");
         }
